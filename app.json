@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "APKElKasir",
-    "slug": "APKElKasir",
+    "slug": "elkasir",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,10 +19,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.wagyuuu.elkasir"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "60efe675-4883-46ab-b777-2f8c23135c3d"
+      }
+    },
+    "owner": "wagyuuu"
   }
 }

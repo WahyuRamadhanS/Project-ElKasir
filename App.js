@@ -7,7 +7,7 @@ import { ProductProvider } from "./ProductContext";
 // Import Screens
 import SplashScreen from "./templates/login and signup/SplashScreen";
 import LogIn from "./templates/login and signup/login";
-import SignUp from "./templates/login and signup/singUP";
+import SignUp from "./templates/login and signup/signup";
 import RegistrationScreen from "./templates/login and signup/RegistrationScreen";
 import VerificationScreen from "./templates/login and signup/VerificationScreen";
 

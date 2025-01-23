@@ -1,129 +1,146 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from "react-native";
-import { Camera } from "expo-camera";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
+/**
+ * Helper function to get the current date and time.
+ */
+const getCurrentDate = () => {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const year = today.getFullYear();
+  const time = today.toTimeString().split(" ")[0]; // Get time in HH:MM:SS format
+  return `${day}/${month}/${year} - ${time}`;
+};
+
 const AttendanceScreen = ({ navigation, route }) => {
-  const [photo, setPhoto] = useState(null);
-  const [hasPermission, setHasPermission] = useState(null);
+  const [photo, setPhoto] = useState(null); // Replace camera functionality with a placeholder
+  const [currentDate, setCurrentDate] = useState(getCurrentDate()); // Call the helper function
+  const role = route.params?.role || "kasir";
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
-  }, []);
-
+  // Handle attendance submission
   const handleSubmit = () => {
     Alert.alert(
       "Attendance Submitted",
-      "Your attendance has been marked successfully!",
-      [{ text: "OK", onPress: () => navigation.goBack() }]
+      `Attendance successfully marked for ${role} at ${currentDate}.`,
+      [
+        {
+          text: "OK",
+          onPress: () =>
+            navigation.navigate("kasir", { screen: "KasirOrders" }), // Navigate to KasirOrders inside Kasir drawer
+        },
+      ]
     );
   };
 
-  if (hasPermission === null) {
-    return <View />;
-  }
-
-  if (!hasPermission) {
-    return (
-      <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>Camera access is required.</Text>
-      </View>
-    );
-  }
+  // Handle retake photo (placeholder functionality)
+  const handleRetakePhoto = () => {
+    setPhoto(null); // Reset the placeholder photo
+  };
 
   return (
     <View style={styles.container}>
+      {/* Check if a photo is taken or show confirmation screen */}
       {photo ? (
-        <ConfirmationView photo={photo} onRetake={() => setPhoto(null)} onSubmit={handleSubmit} />
+        <ConfirmationView
+          photo={photo}
+          currentDate={currentDate}
+          role={role}
+          onRetake={handleRetakePhoto}
+          onSubmit={handleSubmit}
+        />
       ) : (
-        <CameraView setPhoto={setPhoto} />
+        <PlaceholderView setPhoto={setPhoto} />
       )}
     </View>
   );
 };
 
-const CameraView = ({ setPhoto }) => {
-  const [cameraRef, setCameraRef] = useState(null);
-
-  const handleTakePhoto = async () => {
-    if (cameraRef) {
-      try {
-        const photo = await cameraRef.takePictureAsync({ quality: 1 });
-        setPhoto(photo.uri);
-      } catch (error) {
-        console.error("Error taking photo:", error);
-        Alert.alert("Error", "Failed to take photo. Please try again.");
-      }
-    } else {
-      Alert.alert("Error", "Camera is not ready.");
-    }
-  };
-
+// Placeholder View to simulate taking a photo
+const PlaceholderView = ({ setPhoto }) => {
   return (
-    <Camera
-      style={styles.camera}
-      type={Camera.Type.front} // Menggunakan kamera depan
-      ref={(ref) => setCameraRef(ref)}
-    >
-      <View style={styles.controlContainer}>
-        <TouchableOpacity style={styles.captureButton} onPress={handleTakePhoto}>
-          <Icon name="camera" size={30} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-    </Camera>
+    <View style={styles.placeholderContainer}>
+      <Text style={styles.placeholderText}>[Camera Placeholder]</Text>
+      <TouchableOpacity
+        style={styles.captureButton}
+        onPress={() =>
+          setPhoto("https://via.placeholder.com/200") // Simulated photo URL
+        }
+      >
+        <Icon name="camera" size={30} color="#FFF" />
+      </TouchableOpacity>
+    </View>
   );
 };
 
-const ConfirmationView = ({ photo, onRetake, onSubmit }) => (
-  <View style={styles.confirmationContainer}>
-    <Image source={{ uri: photo }} style={styles.photo} />
-    <View style={styles.actionButtons}>
-      <TouchableOpacity style={styles.actionButton} onPress={onRetake}>
-        <Icon name="times" size={24} color="#FFF" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.actionButton} onPress={onSubmit}>
-        <Icon name="check" size={24} color="#FFF" />
-      </TouchableOpacity>
+// Confirmation View for after the photo is "taken"
+const ConfirmationView = ({ photo, currentDate, role, onRetake, onSubmit }) => {
+  return (
+    <View style={styles.confirmationContainer}>
+      <Text style={styles.dateText}>--- {currentDate} ---</Text>
+      <Text style={styles.roleText}>{role}</Text>
+      <Image source={{ uri: photo }} style={styles.photo} />
+      <View style={styles.actionButtons}>
+        <TouchableOpacity style={styles.actionButton} onPress={onRetake}>
+          <Icon name="times" size={24} color="#FFF" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={onSubmit}>
+          <Icon name="check" size={24} color="#FFF" />
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#C5FFF8",
   },
-  permissionContainer: {
+  placeholderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#C5FFF8",
   },
-  permissionText: {
+  placeholderText: {
     fontSize: 18,
-    color: "#FF5B5B",
-  },
-  camera: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  controlContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    fontWeight: "bold",
+    color: "#6B4EFF",
     marginBottom: 20,
   },
   captureButton: {
     backgroundColor: "#FF5B5B",
     padding: 20,
     borderRadius: 50,
+    marginBottom: 50,
   },
   confirmationContainer: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#C5FFF8",
+    padding: 16,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  roleText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#6B4EFF",
+    marginBottom: 20,
   },
   photo: {
     width: 200,
@@ -141,6 +158,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 50,
     alignItems: "center",
+    justifyContent: "center",
+    width: 60,
+    height: 60,
   },
 });
 

@@ -11,23 +11,12 @@ export default function LogIn({ navigation }) {
   const handleLogin = async () => {
     try {
       const response = await api.post("/login", { NamaPengguna: email, KataSandi: password });
-      const { role } = response.data;
-  
       Alert.alert("Login Success", "You are logged in!");
-  
-      // Navigasi berdasarkan role
-      if (role === "Cashier") {
-        navigation.navigate("KasirOrders");
-      } else if (role === "Inventory") {
-        navigation.navigate("InventoryCatalogue");
-      } else if (role === "Owner") {
-        navigation.navigate("Home");
-      }
+      navigation.navigate("Home");
     } catch (error) {
       Alert.alert("Login Failed", error.response?.data?.message || "Invalid credentials.");
     }
   };
-  
 
   const handleGoogleSignIn = async () => {
     Alert.alert("Feature Unavailable", "Google Login belum tersedia.");

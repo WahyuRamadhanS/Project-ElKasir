@@ -9,13 +9,15 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Icon from "react-native-vector-icons/FontAwesome";
-import styles from "../assets/style"; // Import your styles
+import styles from "../assets/style";
+import api from "../utils/api";
 
-export default function RegistrationScreen({ navigation }) {
+export default function RegistrationScreen({ navigation, route }) {
   const [storeName, setStoreName] = useState("");
   const [address, setAddress] = useState("");
-  const [emailPhone, setEmailPhone] = useState("");
   const [profileImage, setProfileImage] = useState(null);
+
+  const { userId } = route.params;
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -30,26 +32,37 @@ export default function RegistrationScreen({ navigation }) {
     }
   };
 
-  const handleNext = () => {
-    if (storeName && address && emailPhone) {
-      Alert.alert("Success", "Proceeding to verification!");
-      navigation.navigate("Home", { contact: emailPhone });
-    } else {
+  const handleNext = async () => {
+    if (!storeName || !address) {
       Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+
+    try {
+      await api.post("/register_store", {
+        userId,
+        NamaToko: storeName,
+        Alamat: address,
+        FotoProfil: profileImage, // Handle this appropriately in the backend
+      });
+      Alert.alert("Success", "Store registered successfully!");
+      navigation.navigate("Home"); // Redirect to the home screen
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Failed to register store."
+      );
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Tombol panah kembali */}
       <TouchableOpacity
         style={{ position: "absolute", top: 40, left: 20 }}
-        onPress={() => navigation.goBack()} // Kembali ke halaman sebelumnya
+        onPress={() => navigation.goBack()}
       >
         <Icon name="arrow-left" size={24} color="#000" />
       </TouchableOpacity>
-
-      {/* Gambar Profil */}
       <TouchableOpacity style={styles.profileImageContainer} onPress={pickImage}>
         {profileImage ? (
           <Image source={{ uri: profileImage }} style={styles.profileImage} />
@@ -57,31 +70,20 @@ export default function RegistrationScreen({ navigation }) {
           <Icon name="user-circle" size={80} color="#7B66FF" />
         )}
       </TouchableOpacity>
-
-      {/* Input untuk Nama, Alamat, dan Email */}
       <TextInput
         style={styles.input}
-        placeholder="Nama"
+        placeholder="Store Name"
         placeholderTextColor="#000"
         value={storeName}
         onChangeText={setStoreName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Alamat"
+        placeholder="Address"
         placeholderTextColor="#000"
         value={address}
         onChangeText={setAddress}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Email-phone"
-        placeholderTextColor="#000"
-        value={emailPhone}
-        onChangeText={setEmailPhone}
-      />
-
-      {/* Tombol Next */}
       <TouchableOpacity style={styles.loginButton} onPress={handleNext}>
         <Text style={styles.loginButtonText}>Next</Text>
       </TouchableOpacity>

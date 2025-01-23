@@ -55,13 +55,11 @@ export default function RegisterEmployeeScreen({ route, navigation }) {
       await api.post(endpoint, {
         Nama: name,
         KataSandi: password,
-        NomorHP: phone,
-        Email: email,
         FotoProfil: profileImage, // Foto profil dikirimkan sebagai URI, backend harus menangani upload
       });
 
       Alert.alert("Success", `${name} registered as ${role} successfully!`, [
-        { text: "OK", onPress: () => navigation.navigate("RoleSelection") },
+        { text: "OK", onPress: () => navigation.navigate("Home") },
       ]);
     } catch (error) {
       Alert.alert(
@@ -75,7 +73,7 @@ export default function RegisterEmployeeScreen({ route, navigation }) {
     <View style={styles.container}>
       {/* Tombol Kembali */}
       <TouchableOpacity
-        onPress={() => navigation.goBack()}
+        onPress={() => navigation.navigate("RoleSelection")}
         style={styles.backButton}
       >
         <Icon name="arrow-back" size={24} color="#000" />
@@ -99,24 +97,6 @@ export default function RegisterEmployeeScreen({ route, navigation }) {
           placeholder="Name"
           value={name}
           onChangeText={(text) => setName(text)}
-        />
-
-        {/* Input Telepon */}
-        <TextInput
-          style={styles.input}
-          placeholder="Phone"
-          value={phone}
-          onChangeText={(text) => setPhone(text)}
-          keyboardType="phone-pad"
-        />
-
-        {/* Input Email */}
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          keyboardType="email-address"
         />
 
         {/* Input Password */}

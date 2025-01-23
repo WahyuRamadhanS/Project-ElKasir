@@ -14,6 +14,10 @@ export default function RoleSelectionScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Tombol Kembali */}
+      <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.backButton}>
+        <Icon name="arrow-back" size={24} color="#000" />
+      </TouchableOpacity>
       <Text style={styles.title}>Select Role</Text>
       <TouchableOpacity
         style={styles.roleButton}

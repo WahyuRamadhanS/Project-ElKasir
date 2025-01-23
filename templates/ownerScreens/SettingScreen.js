@@ -1,13 +1,23 @@
 import React, { useState } from "react";
-import { View, Text, Switch, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Switch,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  AsyncStorage,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function SettingScreen({ navigation }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Toggle Dark Mode
   const toggleDarkMode = () => setIsDarkMode((previousState) => !previousState);
 
-  const handleLogout = () => {
+  // Handle Logout
+  const handleLogout = async () => {
     Alert.alert(
       "Log Out",
       "Are you sure you want to log out?",
@@ -18,7 +28,16 @@ export default function SettingScreen({ navigation }) {
         },
         {
           text: "Log Out",
-          onPress: () => navigation.replace("LogIn"), // Navigasi ke layar login
+          onPress: async () => {
+            try {
+              // Hapus token dari penyimpanan lokal
+              await AsyncStorage.removeItem("userToken");
+              console.log("User token removed");
+              navigation.replace("LogIn"); // Navigasi ke layar login
+            } catch (error) {
+              Alert.alert("Error", "Failed to log out. Please try again.");
+            }
+          },
         },
       ],
       { cancelable: true }
@@ -47,7 +66,7 @@ export default function SettingScreen({ navigation }) {
       </View>
 
       {/* Language Option */}
-      <TouchableOpacity style={styles.option} onPress={() => alert("Change language pressed!")}>
+      <TouchableOpacity style={styles.option} onPress={() => Alert.alert("Feature Unavailable", "Change language pressed!")}>
         <Text style={[styles.optionText, isDarkMode && styles.darkText]}>Language</Text>
         <Icon name="language" size={20} color={isDarkMode ? "#FFF" : "#000"} />
       </TouchableOpacity>

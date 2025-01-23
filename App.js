@@ -32,7 +32,7 @@ import CustomDrawerContentKasir from "./templates/kasirScreens/CustomDrawerConte
 import CustomDrawerContentInventory from "./templates/inventarisScreens/CustomDrawerContentI";
 import CatalogueScreenInventory from "./templates/inventarisScreens/CatalogueScreenInventory";
 
-import KasirAttendanceScreen from "./templates/inventarisScreens/AttendanceScreen";
+import KasirAttendanceScreen from "./templates/kasirScreens/AttendanceScreen";
 import InventoryAttendanceScreen from "./templates/inventarisScreens/AttendanceScreen";
 
 // Create Navigators

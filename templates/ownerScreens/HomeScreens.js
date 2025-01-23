@@ -93,7 +93,7 @@ const HomeScreen = ({ navigation, route }) => {
           { title: "catalogue", icon: require("../assets/catalog.png"), screen: "Catalogue" },
           { title: "transaction history", icon: require("../assets/transaction.png"), screen: "TransactionHistory" },
           { title: "order", icon: require("../assets/order.png"), screen: "Order" },
-          { title: "employee", icon: require("../assets/person.png"), screen: "AddEmployee" },
+          { title: "employee", icon: require("../assets/person.png"), screen: "RoleSelection" },
         ].map((menu, index) => (
           <TouchableOpacity
             key={index}

@@ -16,6 +16,7 @@ import EditProfileScreen from "./templates/ownerScreens/EditProfileScreen";
 import EmployeeAttendanceScreen from "./templates/ownerScreens/EmployeeAttendanceScreen";
 import EmployeeDetailScreen from "./templates/ownerScreens/EmployeeDetailScreen";
 import AddEmployeeScreen from "./templates/ownerScreens/AddEmployeeScreen";
+import RoleSelectionScreen from "./templates/ownerScreens/roleSelect";
 import FinancialReportScreen from "./templates/ownerScreens/FinancialReportScreen";
 import OrderScreen from "./templates/ownerScreens/OrderScreen";
 import CatalogueScreen from "./templates/ownerScreens/CatalogueScreen";
@@ -94,6 +95,7 @@ export default function App() {
           />
           <Stack.Screen name="EmployeeDetail" component={EmployeeDetailScreen} />
           <Stack.Screen name="AddEmployee" component={AddEmployeeScreen} />
+          <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
           <Stack.Screen
             name="FinancialReport"
             component={FinancialReportScreen}

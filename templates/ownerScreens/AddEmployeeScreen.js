@@ -12,10 +12,9 @@ import * as ImagePicker from "expo-image-picker";
 import api from "../utils/api";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function RegisterEmployeeScreen({ navigation }) {
+export default function RegisterEmployeeScreen({ route, navigation }) {
+  const { role } = route.params; // Role diterima dari navigasi
   const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [role, setRole] = useState(""); // Role bisa "Cashier" atau "Inventory"
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +34,7 @@ export default function RegisterEmployeeScreen({ navigation }) {
   };
 
   const handleRegisterEmployee = async () => {
-    if (!name || !role || !phone || !email || !password) {
+    if (!name || !phone || !email || !password) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
@@ -62,7 +61,7 @@ export default function RegisterEmployeeScreen({ navigation }) {
       });
 
       Alert.alert("Success", `${name} registered as ${role} successfully!`, [
-        { text: "OK", onPress: () => navigation.goBack() },
+        { text: "OK", onPress: () => navigation.navigate("RoleSelection") },
       ]);
     } catch (error) {
       Alert.alert(
@@ -83,7 +82,7 @@ export default function RegisterEmployeeScreen({ navigation }) {
       </TouchableOpacity>
 
       <View style={styles.formCard}>
-        <Text style={styles.title}>Add Employee</Text>
+        <Text style={styles.title}>Register {role}</Text>
 
         {/* Foto Profil */}
         <TouchableOpacity style={styles.profileImageContainer} onPress={pickImage}>
@@ -101,42 +100,6 @@ export default function RegisterEmployeeScreen({ navigation }) {
           value={name}
           onChangeText={(text) => setName(text)}
         />
-
-        {/* Pilihan Role (Cashier / Inventory) */}
-        <View style={styles.roleContainer}>
-          <TouchableOpacity
-            style={[
-              styles.roleButton,
-              role === "Cashier" && styles.activeRoleButton,
-            ]}
-            onPress={() => setRole("Cashier")}
-          >
-            <Text
-              style={[
-                styles.roleButtonText,
-                role === "Cashier" && styles.activeRoleButtonText,
-              ]}
-            >
-              Cashier
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.roleButton,
-              role === "Inventory" && styles.activeRoleButton,
-            ]}
-            onPress={() => setRole("Inventory")}
-          >
-            <Text
-              style={[
-                styles.roleButtonText,
-                role === "Inventory" && styles.activeRoleButtonText,
-              ]}
-            >
-              Inventory
-            </Text>
-          </TouchableOpacity>
-        </View>
 
         {/* Input Telepon */}
         <TextInput
@@ -224,32 +187,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 40,
     marginBottom: 15,
-  },
-  roleContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginBottom: 15,
-  },
-  roleButton: {
-    flex: 1,
-    backgroundColor: "#FFF",
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    marginHorizontal: 5,
-  },
-  activeRoleButton: {
-    backgroundColor: "#FF5B5B",
-  },
-  roleButtonText: {
-    fontSize: 16,
-    color: "#000",
-  },
-  activeRoleButtonText: {
-    color: "#FFF",
-    fontWeight: "bold",
   },
   button: {
     backgroundColor: "#FF5B5B",

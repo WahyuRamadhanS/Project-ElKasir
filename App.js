@@ -8,7 +8,6 @@ import { ProductProvider } from "./ProductContext";
 import SplashScreen from "./templates/login and signup/SplashScreen";
 import LogIn from "./templates/login and signup/login";
 import SignUp from "./templates/login and signup/signup";
-import RegistrationScreen from "./templates/login and signup/RegistrationScreen";
 import VerificationScreen from "./templates/login and signup/VerificationScreen";
 
 import HomeScreens from "./templates/ownerScreens/HomeScreens";
@@ -83,7 +82,6 @@ export default function App() {
           <Stack.Screen name="SplashScreen" component={SplashScreen} />
           <Stack.Screen name="LogIn" component={LogIn} />
           <Stack.Screen name="SignUp" component={SignUp} />
-          <Stack.Screen name="Registration" component={RegistrationScreen} />
           <Stack.Screen name="Verification" component={VerificationScreen} />
 
           {/* Main App Screens */}

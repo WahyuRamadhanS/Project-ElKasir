@@ -6,35 +6,50 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import api from "../utils/api"; // Import API util
+import * as ImagePicker from "expo-image-picker";
+import api from "../utils/api";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function RegisterEmployeeScreen({ navigation }) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [position, setPosition] = useState("");
+  const [role, setRole] = useState(""); // Role bisa "Cashier" atau "Inventory"
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [profileImage, setProfileImage] = useState(null);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setProfileImage(result.assets[0].uri);
+    }
+  };
 
   const handleRegisterEmployee = async () => {
-    if (!name || !address || !position || !phone || !email || !password) {
+    if (!name || !role || !phone || !email || !password) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
 
     try {
       const endpoint =
-        position === "Cashier"
+        role === "Cashier"
           ? "/pegawai_kasir"
-          : position === "Inventory"
+          : role === "Inventory"
           ? "/pegawai_inventaris"
           : null;
 
       if (!endpoint) {
-        Alert.alert("Error", "Invalid position selected.");
+        Alert.alert("Error", "Invalid role selected.");
         return;
       }
 
@@ -43,9 +58,10 @@ export default function RegisterEmployeeScreen({ navigation }) {
         KataSandi: password,
         NomorHP: phone,
         Email: email,
+        FotoProfil: profileImage, // Foto profil dikirimkan sebagai URI, backend harus menangani upload
       });
 
-      Alert.alert("Success", `${name} registered as ${position} successfully!`, [
+      Alert.alert("Success", `${name} registered as ${role} successfully!`, [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
@@ -58,6 +74,7 @@ export default function RegisterEmployeeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* Tombol Kembali */}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
@@ -68,22 +85,60 @@ export default function RegisterEmployeeScreen({ navigation }) {
       <View style={styles.formCard}>
         <Text style={styles.title}>Add Employee</Text>
 
+        {/* Foto Profil */}
+        <TouchableOpacity style={styles.profileImageContainer} onPress={pickImage}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          ) : (
+            <Icon name="person" size={80} color="#7B66FF" />
+          )}
+        </TouchableOpacity>
+
+        {/* Input Nama */}
         <TextInput
           style={styles.input}
           placeholder="Name"
           value={name}
           onChangeText={(text) => setName(text)}
         />
-        <View style={styles.dropdown}>
-          <Picker
-            selectedValue={position}
-            onValueChange={(itemValue) => setPosition(itemValue)}
+
+        {/* Pilihan Role (Cashier / Inventory) */}
+        <View style={styles.roleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.roleButton,
+              role === "Cashier" && styles.activeRoleButton,
+            ]}
+            onPress={() => setRole("Cashier")}
           >
-            <Picker.Item label="Select Position" value="" />
-            <Picker.Item label="Cashier" value="Cashier" />
-            <Picker.Item label="Inventory" value="Inventory" />
-          </Picker>
+            <Text
+              style={[
+                styles.roleButtonText,
+                role === "Cashier" && styles.activeRoleButtonText,
+              ]}
+            >
+              Cashier
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.roleButton,
+              role === "Inventory" && styles.activeRoleButton,
+            ]}
+            onPress={() => setRole("Inventory")}
+          >
+            <Text
+              style={[
+                styles.roleButtonText,
+                role === "Inventory" && styles.activeRoleButtonText,
+              ]}
+            >
+              Inventory
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Input Telepon */}
         <TextInput
           style={styles.input}
           placeholder="Phone"
@@ -91,6 +146,8 @@ export default function RegisterEmployeeScreen({ navigation }) {
           onChangeText={(text) => setPhone(text)}
           keyboardType="phone-pad"
         />
+
+        {/* Input Email */}
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -98,6 +155,8 @@ export default function RegisterEmployeeScreen({ navigation }) {
           onChangeText={(text) => setEmail(text)}
           keyboardType="email-address"
         />
+
+        {/* Input Password */}
         <TextInput
           style={styles.input}
           placeholder="Password"
@@ -106,6 +165,7 @@ export default function RegisterEmployeeScreen({ navigation }) {
           secureTextEntry
         />
 
+        {/* Tombol Daftar */}
         <TouchableOpacity style={styles.button} onPress={handleRegisterEmployee}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
@@ -145,6 +205,18 @@ const styles = StyleSheet.create({
     color: "#FFF",
     marginBottom: 20,
   },
+  profileImageContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#FFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   input: {
     backgroundColor: "#FFF",
     width: "100%",
@@ -153,13 +225,31 @@ const styles = StyleSheet.create({
     height: 40,
     marginBottom: 15,
   },
-  dropdown: {
-    backgroundColor: "#FFF",
+  roleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     width: "100%",
-    borderRadius: 10,
-    height: 40,
-    justifyContent: "center",
     marginBottom: 15,
+  },
+  roleButton: {
+    flex: 1,
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+    marginHorizontal: 5,
+  },
+  activeRoleButton: {
+    backgroundColor: "#FF5B5B",
+  },
+  roleButtonText: {
+    fontSize: 16,
+    color: "#000",
+  },
+  activeRoleButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
   },
   button: {
     backgroundColor: "#FF5B5B",
@@ -176,4 +266,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-

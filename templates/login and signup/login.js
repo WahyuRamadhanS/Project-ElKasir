@@ -17,16 +17,17 @@ export default function LogIn({ navigation }) {
   
       // Navigasi berdasarkan role
       if (role === "Cashier") {
-        navigation.navigate("OrderScreen");
+        navigation.navigate("KasirOrders");
       } else if (role === "Inventory") {
-        navigation.navigate("CatalogueScreenInventory");
+        navigation.navigate("InventoryCatalogue");
       } else if (role === "Owner") {
-        navigation.navigate("HomeScreen");
+        navigation.navigate("Home");
       }
     } catch (error) {
       Alert.alert("Login Failed", error.response?.data?.message || "Invalid credentials.");
     }
   };
+  
 
   const handleGoogleSignIn = async () => {
     Alert.alert("Feature Unavailable", "Google Login belum tersedia.");

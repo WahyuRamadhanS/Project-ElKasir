@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:5000', // Ganti dengan IP server Flask Anda
+  baseURL: "http://127.0.0.1:5000", // Ganti dengan alamat backend Flask Anda
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 

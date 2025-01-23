@@ -8,9 +8,10 @@ import {
   Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Pastikan pustaka ini diinstal
+import api from "../utils/api"; // Import API util
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-const RegisterEmployeeScreen = ({ navigation }) => {
+export default function RegisterEmployeeScreen({ navigation }) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [position, setPosition] = useState("");
@@ -18,33 +19,45 @@ const RegisterEmployeeScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegisterEmployee = () => {
+  const handleRegisterEmployee = async () => {
     if (!name || !address || !position || !phone || !email || !password) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
 
-    // Simulasi penyimpanan data karyawan
-    const employeeData = {
-      name,
-      address,
-      position,
-      phone,
-      email,
-    };
+    try {
+      const endpoint =
+        position === "Cashier"
+          ? "/pegawai_kasir"
+          : position === "Inventory"
+          ? "/pegawai_inventaris"
+          : null;
 
-    console.log("Employee Registered:", employeeData);
+      if (!endpoint) {
+        Alert.alert("Error", "Invalid position selected.");
+        return;
+      }
 
-    Alert.alert(
-      "Success",
-      `Employee ${name} added as ${position} successfully!`,
-      [{ text: "OK", onPress: () => navigation.goBack() }]
-    );
+      await api.post(endpoint, {
+        Nama: name,
+        KataSandi: password,
+        NomorHP: phone,
+        Email: email,
+      });
+
+      Alert.alert("Success", `${name} registered as ${position} successfully!`, [
+        { text: "OK", onPress: () => navigation.goBack() },
+      ]);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error.response?.data?.message || "Failed to register employee."
+      );
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={styles.backButton}
@@ -52,32 +65,15 @@ const RegisterEmployeeScreen = ({ navigation }) => {
         <Icon name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
 
-      {/* Form Card */}
       <View style={styles.formCard}>
-        {/* Profile Image Placeholder */}
-        <View style={styles.profileContainer}>
-          <View style={styles.profileImage}>
-            <Text style={styles.profileText}>Photo</Text>
-          </View>
-          <TouchableOpacity style={styles.editIcon}>
-            <Text style={styles.editText}>✎</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.title}>Add Employee</Text>
 
-        {/* Input Fields */}
         <TextInput
           style={styles.input}
           placeholder="Name"
           value={name}
           onChangeText={(text) => setName(text)}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Address"
-          value={address}
-          onChangeText={(text) => setAddress(text)}
-        />
-        {/* Dropdown Position */}
         <View style={styles.dropdown}>
           <Picker
             selectedValue={position}
@@ -86,7 +82,6 @@ const RegisterEmployeeScreen = ({ navigation }) => {
             <Picker.Item label="Select Position" value="" />
             <Picker.Item label="Cashier" value="Cashier" />
             <Picker.Item label="Inventory" value="Inventory" />
-            <Picker.Item label="Manager" value="Manager" />
           </Picker>
         </View>
         <TextInput
@@ -111,14 +106,13 @@ const RegisterEmployeeScreen = ({ navigation }) => {
           secureTextEntry
         />
 
-        {/* Submit Button */}
         <TouchableOpacity style={styles.button} onPress={handleRegisterEmployee}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -145,33 +139,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 60,
   },
-  profileContainer: {
-    alignItems: "center",
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FFF",
     marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#FFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  profileText: {
-    fontSize: 14,
-    color: "#7B66FF",
-  },
-  editIcon: {
-    position: "absolute",
-    bottom: -5,
-    right: -5,
-    backgroundColor: "#FFF",
-    borderRadius: 12,
-    padding: 4,
-  },
-  editText: {
-    fontSize: 12,
-    color: "#000",
   },
   input: {
     backgroundColor: "#FFF",
@@ -205,4 +177,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterEmployeeScreen;

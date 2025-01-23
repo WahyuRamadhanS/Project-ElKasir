@@ -11,8 +11,18 @@ export default function LogIn({ navigation }) {
   const handleLogin = async () => {
     try {
       const response = await api.post("/login", { NamaPengguna: email, KataSandi: password });
+      const { role } = response.data;
+  
       Alert.alert("Login Success", "You are logged in!");
-      navigation.navigate("Home");
+  
+      // Navigasi berdasarkan role
+      if (role === "Cashier") {
+        navigation.navigate("OrderScreen");
+      } else if (role === "Inventory") {
+        navigation.navigate("CatalogueScreenInventory");
+      } else if (role === "Owner") {
+        navigation.navigate("HomeScreen");
+      }
     } catch (error) {
       Alert.alert("Login Failed", error.response?.data?.message || "Invalid credentials.");
     }

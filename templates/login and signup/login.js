@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Text, View, TextInput, TouchableOpacity, Alert, Image } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import api from "../utils/api";
+import api from "./utils/api";
 import styles from "../assets/style";
 
 export default function LogIn({ navigation }) {

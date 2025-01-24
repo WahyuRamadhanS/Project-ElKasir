@@ -98,10 +98,7 @@ export default function App() {
           <Stack.Screen name="AddCashier" component={AddCashierScreen} />
           <Stack.Screen name="AddInventory" component={AddInventoryScreen} />
           <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />          
-          <Stack.Screen
-            name="FinancialReport"
-            component={FinancialReportScreen}
-          />
+          <Stack.Screen name="FinancialReport" component={FinancialReportScreen} />
           <Stack.Screen name="Order" component={OrderScreen} />
           <Stack.Screen name="Catalogue" component={CatalogueScreen} />
           <Stack.Screen name="CatalogueEdit" component={CatalogueEdit} />

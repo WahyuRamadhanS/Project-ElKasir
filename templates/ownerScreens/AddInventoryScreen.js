@@ -14,8 +14,6 @@ import api from "../utils/api";
 
 export default function AddInventoryScreen({ navigation }) {
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [profileImage, setProfileImage] = useState(null);
 
@@ -33,7 +31,7 @@ export default function AddInventoryScreen({ navigation }) {
   };
 
   const handleRegister = async () => {
-    if (!name || !phone || !email || !password) {
+    if (!name || !password) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }

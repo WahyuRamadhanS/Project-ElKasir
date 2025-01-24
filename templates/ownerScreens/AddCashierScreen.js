@@ -31,7 +31,7 @@ export default function AddCashierScreen({ navigation }) {
   };
 
   const handleRegister = async () => {
-    if (!name || !phone || !email || !password) {
+    if (!name || !password) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }

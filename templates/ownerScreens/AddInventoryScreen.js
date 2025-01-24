@@ -41,8 +41,6 @@ export default function AddInventoryScreen({ navigation }) {
     try {
       await api.post("/pegawai_inventaris", {
         Nama: name,
-        NomorHP: phone,
-        Email: email,
         KataSandi: password,
         FotoProfil: profileImage, // Dikirimkan sebagai URI, backend perlu menangani
       });
@@ -74,20 +72,6 @@ export default function AddInventoryScreen({ navigation }) {
           placeholder="Name"
           value={name}
           onChangeText={(text) => setName(text)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Phone"
-          value={phone}
-          onChangeText={(text) => setPhone(text)}
-          keyboardType="phone-pad"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}

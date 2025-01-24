@@ -14,8 +14,6 @@ import api from "../utils/api";
 
 export default function AddCashierScreen({ navigation }) {
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [profileImage, setProfileImage] = useState(null);
 
@@ -74,20 +72,6 @@ export default function AddCashierScreen({ navigation }) {
           placeholder="Name"
           value={name}
           onChangeText={(text) => setName(text)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Phone"
-          value={phone}
-          onChangeText={(text) => setPhone(text)}
-          keyboardType="phone-pad"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          keyboardType="email-address"
         />
         <TextInput
           style={styles.input}

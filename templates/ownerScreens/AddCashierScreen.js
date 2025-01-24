@@ -6,29 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Image,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import api from "../utils/api";
 
 export default function AddCashierScreen({ navigation }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
-    }
-  };
 
   const handleRegister = async () => {
     if (!name || !password) {
@@ -39,10 +23,7 @@ export default function AddCashierScreen({ navigation }) {
     try {
       await api.post("/pegawai_kasir", {
         Nama: name,
-        NomorHP: phone,
-        Email: email,
         KataSandi: password,
-        FotoProfil: profileImage, // Dikirimkan sebagai URI, backend perlu menangani
       });
 
       Alert.alert("Success", "Cashier registered successfully!", [
@@ -60,13 +41,6 @@ export default function AddCashierScreen({ navigation }) {
       </TouchableOpacity>
       <View style={styles.formCard}>
         <Text style={styles.title}>Register Cashier</Text>
-        <TouchableOpacity style={styles.profileImageContainer} onPress={pickImage}>
-          {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-          ) : (
-            <Icon name="person" size={80} color="#7B66FF" />
-          )}
-        </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Name"
@@ -119,18 +93,6 @@ const styles = StyleSheet.create({
     color: "#FFF",
     marginBottom: 20,
   },
-  profileImageContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#FFF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   input: {
     backgroundColor: "#FFF",
     width: "100%",
@@ -153,4 +115,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-});  
+});

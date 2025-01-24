@@ -27,7 +27,7 @@ export default function AddCashierScreen({ navigation }) {
       });
 
       Alert.alert("Success", "Cashier registered successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("RoleSelection") },
+        { text: "OK", onPress: () => navigation.navigate("Home") },
       ]);
     } catch (error) {
       Alert.alert("Error", error.response?.data?.message || "Failed to register.");

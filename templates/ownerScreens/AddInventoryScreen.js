@@ -27,7 +27,7 @@ export default function AddInventoryScreen({ navigation }) {
       });
 
       Alert.alert("Success", "Inventory registered successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("RoleSelection") },
+        { text: "OK", onPress: () => navigation.navigate("Home") },
       ]);
     } catch (error) {
       Alert.alert("Error", error.response?.data?.message || "Failed to register.");

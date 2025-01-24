@@ -1,14 +1,7 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import { Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
 import api from "../utils/api";
+import styles from "../assets/style";
 
 export default function AddCashierScreen({ navigation }) {
   const [name, setName] = useState("");
@@ -28,7 +21,7 @@ export default function AddCashierScreen({ navigation }) {
 
       if (response.status === 201) {
         Alert.alert("Success", "Cashier registered successfully!", [
-          { text: "OK", onPress: () => navigation.navigate("Home") },
+          { text: "OK", onPress: () => navigation.navigate("RoleSelection") },
         ]);
       } else {
         Alert.alert("Error", "Failed to register cashier.");
@@ -37,35 +30,30 @@ export default function AddCashierScreen({ navigation }) {
       if (error.response?.data?.message) {
         Alert.alert("Error", error.response.data.message);
       } else {
-        Alert.alert("Error", "Failed to register cashier. Please try again.");
+        Alert.alert("Error", "Something went wrong. Please try again.");
       }
     }
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Icon name="arrow-back" size={24} color="#000" />
+      <Text style={styles.title}>Register Cashier</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Name"
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TouchableOpacity style={styles.loginButton} onPress={handleRegister}>
+        <Text style={styles.loginButtonText}>Register</Text>
       </TouchableOpacity>
-      <View style={styles.formCard}>
-        <Text style={styles.title}>Register Cashier</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Register</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

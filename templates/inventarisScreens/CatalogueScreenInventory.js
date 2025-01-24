@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,51 +10,58 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { useProducts } from "../../ProductContext";
+import api from "../../utils/api";
 
 const CatalogueScreenInventory = ({ navigation }) => {
-  const { products, setProducts } = useProducts();
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [isGridView, setIsGridView] = useState(false); // State to toggle Grid/List view
+  const [isGridView, setIsGridView] = useState(false);
 
-  // Function to delete a product
-  const handleDeleteProduct = (id) => {
-    Alert.alert(
-      "Delete Product",
-      "Are you sure you want to delete this product?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            const updatedProducts = products.filter((product) => product.id !== id);
-            setProducts(updatedProducts);
-          },
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get("/produk");
+        setProducts(response.data);
+      } catch (error) {
+        Alert.alert("Error", error.response?.data?.message || "Failed to fetch products.");
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleDeleteProduct = async (id) => {
+    Alert.alert("Delete Product", "Are you sure you want to delete this product?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await api.delete(`/produk/${id}`);
+            setProducts((prevProducts) => prevProducts.filter((product) => product.IDProduk !== id));
+            Alert.alert("Success", "Product deleted successfully!");
+          } catch (error) {
+            Alert.alert("Error", error.response?.data?.message || "Failed to delete product.");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
-  // Render a single catalog item
-  const renderCatalogueItem = ({ item }) => (
-    <View
-      style={[
-        styles.itemContainer,
-        isGridView && styles.gridItemContainer, // Apply grid styling if in grid view
-      ]}
-    >
-      {/* Product Image */}
-      <Image
-        source={{ uri: item.image || "https://via.placeholder.com/100" }}
-        style={isGridView ? styles.gridItemImage : styles.itemImage} // Adjust image style for grid/list
-      />
+  const filteredProducts = products.filter((product) =>
+    product.NamaProduk.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const renderProductItem = ({ item }) => (
+    <View style={[styles.itemContainer, isGridView && styles.gridItemContainer]}>
+      <Image source={{ uri: item.Gambar || "https://via.placeholder.com/100" }} style={isGridView ? styles.gridItemImage : styles.itemImage} />
       <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        {!isGridView && <Text style={styles.itemPrice}>Rp. {item.price}</Text>} {/* Show price only in list */}
-        <Text style={styles.itemStock}>Stock: {item.stock}</Text>
+        <Text style={styles.itemName}>{item.NamaProduk}</Text>
+        {!isGridView && <Text style={styles.itemPrice}>Rp. {item.Harga}</Text>}
+        <Text style={styles.itemStock}>Stock: {item.Stok}</Text>
       </View>
-      {!isGridView && ( // Show action buttons only in list view
+      {!isGridView && (
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={styles.editButton}
@@ -64,7 +71,7 @@ const CatalogueScreenInventory = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.deleteButton}
-            onPress={() => handleDeleteProduct(item.id)}
+            onPress={() => handleDeleteProduct(item.IDProduk)}
           >
             <Icon name="trash" size={20} color="#FFF" />
           </TouchableOpacity>
@@ -75,30 +82,25 @@ const CatalogueScreenInventory = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        {/* Drawer Toggle Button */}
         <TouchableOpacity
           style={styles.drawerToggleButton}
           onPress={() => navigation.openDrawer()}
         >
           <Icon name="bars" size={24} color="#FFF" />
         </TouchableOpacity>
-
-        {/* Toggle Grid/List View Button */}
         <TouchableOpacity
           style={styles.toggleViewButton}
           onPress={() => setIsGridView((prev) => !prev)}
         >
           <Icon
-            name={isGridView ? "list" : "th-large"} // Change icon based on the current view mode
+            name={isGridView ? "list" : "th-large"}
             size={24}
             color="#FFF"
           />
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Icon name="search" size={20} color="#FFF" style={styles.searchIcon} />
         <TextInput
@@ -110,20 +112,15 @@ const CatalogueScreenInventory = ({ navigation }) => {
         />
       </View>
 
-      {/* Catalogue List */}
       <FlatList
-        data={products.filter((item) =>
-          item.name.toLowerCase().includes(search.toLowerCase())
-        )}
-        keyExtractor={(item) => item.id}
-        key={isGridView ? "grid" : "list"} // Force FlatList to re-render on mode change
-        renderItem={renderCatalogueItem}
-        showsVerticalScrollIndicator={false}
-        numColumns={isGridView ? 2 : 1} // Use 2 columns for grid, 1 column for list
+        data={filteredProducts}
+        keyExtractor={(item) => item.IDProduk.toString()}
+        renderItem={renderProductItem}
+        numColumns={isGridView ? 2 : 1}
         contentContainerStyle={styles.listContainer}
       />
 
-      {/* Add Button */}
+      {/* Add Button for Inventory Screen */}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate("CatalogueAdd")}

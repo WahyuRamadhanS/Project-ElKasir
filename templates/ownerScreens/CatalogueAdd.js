@@ -2,26 +2,25 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
   Image,
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useProducts } from "../../ProductContext";
+import api from "../../utils/api";
 
 const CatalogueAdd = ({ navigation }) => {
-  const { products, setProducts } = useProducts();
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [code, setCode] = useState("");
-  const [purchase, setPurchase] = useState("");
+  const [purchasePrice, setPurchasePrice] = useState("");
   const [image, setImage] = useState(null);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
+    let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
@@ -29,57 +28,45 @@ const CatalogueAdd = ({ navigation }) => {
     });
 
     if (!result.canceled) {
-      setImage(result.uri);
+      setImage(result.assets[0].uri);
     }
   };
 
-  const handleAddProduct = () => {
-    if (!productName || !price || !stock || !code || !purchase) {
+  const handleAddProduct = async () => {
+    if (!productName || !price || !stock || !code || !purchasePrice) {
       Alert.alert("Error", "All fields except image are required.");
       return;
     }
 
-    if (isNaN(price) || isNaN(stock) || isNaN(purchase)) {
-      Alert.alert("Error", "Price, Stock, and Purchase must be numeric values.");
-      return;
+    try {
+      const response = await api.post("/produk", {
+        NamaProduk: productName,
+        Harga: parseFloat(price),
+        Stok: parseInt(stock, 10),
+        Kode: code,
+        HargaBeli: parseFloat(purchasePrice),
+        Gambar: image || "https://via.placeholder.com/150",
+      });
+
+      if (response.status === 201) {
+        Alert.alert("Success", "Product added successfully!");
+        navigation.goBack();
+      }
+    } catch (error) {
+      Alert.alert("Error", error.response?.data?.message || "Failed to add product.");
     }
-
-    const newProduct = {
-      id: Date.now().toString(),
-      name: productName,
-      price: parseInt(price, 10),
-      stock: parseInt(stock, 10),
-      code,
-      purchase: parseInt(purchase, 10),
-      image: image || "https://via.placeholder.com/150", // Gunakan gambar placeholder jika tidak ada gambar
-    };
-
-    setProducts([...products, newProduct]);
-
-    Alert.alert("Success", "Product added successfully!");
-    navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.backText}>← Back</Text>
-      </TouchableOpacity>
-
-      {/* Image Picker */}
+      <Text style={styles.title}>Add Product</Text>
       <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
         {image ? (
           <Image source={{ uri: image }} style={styles.image} />
         ) : (
-          <Text style={styles.imagePlaceholder}>Select Image (Optional)</Text>
+          <Text style={styles.imagePlaceholder}>Select Image</Text>
         )}
       </TouchableOpacity>
-
-      {/* Input Fields */}
       <TextInput
         style={styles.input}
         placeholder="Product Name"
@@ -109,51 +96,31 @@ const CatalogueAdd = ({ navigation }) => {
       <TextInput
         style={styles.input}
         placeholder="Purchase Price"
-        value={purchase}
-        onChangeText={setPurchase}
+        value={purchasePrice}
+        onChangeText={setPurchasePrice}
         keyboardType="numeric"
       />
-
-      {/* Submit Button */}
       <TouchableOpacity style={styles.addButton} onPress={handleAddProduct}>
-        <Text style={styles.addButtonText}>Add</Text>
+        <Text style={styles.addButtonText}>Add Product</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#C5FFF8",
-    padding: 20,
-    paddingTop: 45,
-  },
-  backButton: {
-    marginBottom: 20,
-  },
-  backText: {
-    fontSize: 18,
-    color: "#4B0082",
-  },
+  container: { flex: 1, padding: 20, backgroundColor: "#C5FFF8" },
+  title: { fontSize: 20, fontWeight: "bold", marginBottom: 20, color: "#4B0082" },
   imagePicker: {
-    backgroundColor: "#EAEAEA",
-    height: 150,
     width: 150,
-    alignSelf: "center",
+    height: 150,
+    backgroundColor: "#EAEAEA",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
     marginBottom: 20,
   },
-  image: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 10,
-  },
-  imagePlaceholder: {
-    color: "#7B7B7B",
-  },
+  image: { width: "100%", height: "100%", borderRadius: 10 },
+  imagePlaceholder: { color: "#7B7B7B" },
   input: {
     backgroundColor: "#FFF",
     borderRadius: 10,
@@ -166,13 +133,8 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 10,
   },
-  addButtonText: {
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  addButtonText: { color: "#FFF", fontSize: 16, fontWeight: "bold" },
 });
 
 export default CatalogueAdd;

@@ -1,14 +1,54 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Make sure this is installed
+import api from "../utils/api"; // Backend API integration
 
 const HomeScreen = ({ navigation, route }) => {
-  const [profileImage, setProfileImage] = useState(require("../assets/profile.png")); // Gambar default
-  const [storeName, setStoreName] = useState("Uchi Parfume"); // Nama toko default
-  const [totalProductsSold, setTotalProductsSold] = useState(150); // Jumlah produk yang terjual
-  const [productPrice, setProductPrice] = useState(103400); // Harga per produk
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0); // Omzet bulanan
+  const [profileImage, setProfileImage] = useState(
+    require("../assets/profile.png")
+  ); // Default profile image
+  const [storeName, setStoreName] = useState("Nama Toko"); // Default store name
+  const [totalProductsSold, setTotalProductsSold] = useState(150);
+  const [productPrice, setProductPrice] = useState(103400);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [highestSales, setHighestSales] = useState(0); // Highest sales in a day
+  const [lowestSales, setLowestSales] = useState(0); // Lowest sales in a day
 
-  // Perbarui data setelah kembali dari EditProfileScreen
+  // Fetch store name from AsyncStorage
+  useEffect(() => {
+    const fetchStoreName = async () => {
+      const storedName = await AsyncStorage.getItem("NamaToko");
+      if (storedName) {
+        setStoreName(storedName);
+      }
+    };
+    fetchStoreName();
+  }, []);
+
+  // Fetch highest and lowest daily sales from backend
+  useEffect(() => {
+    const fetchSalesStats = async () => {
+      try {
+        const response = await api.get("/sales/stats"); // Endpoint for fetching stats
+        const { highest, lowest, totalProducts } = response.data;
+        setHighestSales(highest || 0);
+        setLowestSales(lowest || 0);
+        setTotalProductsSold(totalProducts || 0);
+      } catch (error) {
+        console.error("Failed to fetch sales stats:", error);
+      }
+    };
+    fetchSalesStats();
+  }, []);
+
+  // Handle updates from EditProfileScreen
   useEffect(() => {
     if (route.params?.updatedStoreName) {
       setStoreName(route.params.updatedStoreName);
@@ -18,7 +58,7 @@ const HomeScreen = ({ navigation, route }) => {
     }
   }, [route.params]);
 
-  // Hitung omzet bulanan setiap kali jumlah produk atau harga berubah
+  // Calculate monthly revenue whenever products sold or price changes
   useEffect(() => {
     const revenue = totalProductsSold * productPrice;
     setMonthlyRevenue(revenue);
@@ -29,13 +69,19 @@ const HomeScreen = ({ navigation, route }) => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/el-kasir-logo.png")} style={styles.logoImage} />
+          <Image
+            source={require("../assets/el-kasir-logo.png")}
+            style={styles.logoImage}
+          />
         </View>
         <TouchableOpacity
           style={styles.settingsButton}
           onPress={() => navigation.navigate("Setting")}
         >
-          <Image source={require("../assets/settings-icon.png")} style={styles.settingsIcon} />
+          <Image
+            source={require("../assets/settings-icon.png")}
+            style={styles.settingsIcon}
+          />
         </TouchableOpacity>
       </View>
 
@@ -47,16 +93,16 @@ const HomeScreen = ({ navigation, route }) => {
             <Text style={styles.storeName}>{storeName}</Text>
             <View style={styles.statsContainer}>
               <View style={styles.stat}>
-                <Text style={styles.statLabel}>product</Text>
+                <Text style={styles.statLabel}>Products Sold</Text>
                 <Text style={styles.statValue}>{totalProductsSold}</Text>
               </View>
               <View style={styles.stat}>
-                <Text style={styles.statLabel}>highest</Text>
-                <Text style={styles.statValue}>146</Text>
+                <Text style={styles.statLabel}>Highest</Text>
+                <Text style={styles.statValue}>{highestSales}</Text>
               </View>
               <View style={styles.stat}>
-                <Text style={styles.statLabel}>lowest</Text>
-                <Text style={styles.statValue}>15</Text>
+                <Text style={styles.statLabel}>Lowest</Text>
+                <Text style={styles.statValue}>{lowestSales}</Text>
               </View>
             </View>
           </View>
@@ -76,7 +122,7 @@ const HomeScreen = ({ navigation, route }) => {
 
       {/* Revenue Card */}
       <View style={styles.revenueCard}>
-        <Text style={styles.revenueLabel}>Omzet Perbulan</Text>
+        <Text style={styles.revenueLabel}>Monthly Revenue</Text>
         <Text style={styles.revenueText}>
           Rp. {monthlyRevenue.toLocaleString("id-ID")}
         </Text>
@@ -87,20 +133,48 @@ const HomeScreen = ({ navigation, route }) => {
 
       {/* Menu Grid */}
       <View style={styles.menuGrid}>
-        {[  
-          { title: "absent", icon: require("../assets/absen.png"), screen: "EmployeeAttendance" },
-          { title: "financial report", icon: require("../assets/financialreport.png"), screen: "FinancialReport" },
-          { title: "catalogue", icon: require("../assets/catalog.png"), screen: "Catalogue" },
-          { title: "transaction history", icon: require("../assets/transaction.png"), screen: "TransactionHistory" },
-          { title: "order", icon: require("../assets/order.png"), screen: "Order" },
-          { title: "employee", icon: require("../assets/person.png"), screen: "RoleSelection" },
+        {[
+          {
+            title: "Absent",
+            icon: require("../assets/absen.png"),
+            screen: "EmployeeAttendance",
+          },
+          {
+            title: "Financial Report",
+            icon: require("../assets/financialreport.png"),
+            screen: "FinancialReport",
+          },
+          {
+            title: "Catalogue",
+            icon: require("../assets/catalog.png"),
+            screen: "Catalogue",
+          },
+          {
+            title: "Transaction History",
+            icon: require("../assets/transaction.png"),
+            screen: "TransactionHistory",
+          },
+          {
+            title: "Order",
+            icon: require("../assets/order.png"),
+            screen: "Order",
+          },
+          {
+            title: "Employee",
+            icon: require("../assets/person.png"),
+            screen: "RoleSelection",
+          },
         ].map((menu, index) => (
           <TouchableOpacity
             key={index}
             style={styles.menuItem}
             onPress={() => navigation.navigate(menu.screen)}
           >
-            <Image source={menu.icon} style={styles.menuIcon} resizeMode="contain" />
+            <Image
+              source={menu.icon}
+              style={styles.menuIcon}
+              resizeMode="contain"
+            />
             <Text style={styles.menuText}>{menu.title}</Text>
           </TouchableOpacity>
         ))}

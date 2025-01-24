@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,45 +10,56 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { useProducts } from "../../ProductContext";
+import api from "../../utils/api";
 
 const CatalogueScreen = ({ navigation }) => {
-  const { products, setProducts } = useProducts();
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
 
-  // Function to delete a product
-  const handleDeleteProduct = (id) => {
-    Alert.alert(
-      "Delete Product",
-      "Are you sure you want to delete this product?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            const updatedProducts = products.filter((product) => product.id !== id);
-            setProducts(updatedProducts);
-          },
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get("/produk");
+        setProducts(response.data);
+      } catch (error) {
+        Alert.alert("Error", error.response?.data?.message || "Failed to fetch products.");
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleDeleteProduct = async (id) => {
+    Alert.alert("Delete Product", "Are you sure?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await api.delete(`/produk/${id}`);
+            setProducts((prevProducts) => prevProducts.filter((product) => product.IDProduk !== id));
+            Alert.alert("Success", "Product deleted successfully!");
+          } catch (error) {
+            Alert.alert("Error", error.response?.data?.message || "Failed to delete product.");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
-  // Render a single catalog item
-  const renderCatalogueItem = ({ item }) => (
+  const filteredProducts = products.filter((product) =>
+    product.NamaProduk.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const renderProductItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      {/* Product Image */}
-      <Image
-        source={{ uri: item.image || "https://via.placeholder.com/100" }}
-        style={styles.itemImage}
-      />
+      <Image source={{ uri: item.Gambar || "https://via.placeholder.com/100" }} style={styles.itemImage} />
       <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemPrice}>Rp. {item.price}</Text>
-        <Text style={styles.itemStock}>Stock: {item.stock}</Text>
+        <Text style={styles.itemName}>{item.NamaProduk}</Text>
+        <Text style={styles.itemPrice}>Rp. {item.Harga}</Text>
+        <Text style={styles.itemStock}>Stock: {item.Stok}</Text>
       </View>
-      {/* Action Buttons */}
       <View style={styles.actionButtons}>
         <TouchableOpacity
           style={styles.editButton}
@@ -58,7 +69,7 @@ const CatalogueScreen = ({ navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => handleDeleteProduct(item.id)}
+          onPress={() => handleDeleteProduct(item.IDProduk)}
         >
           <Icon name="trash" size={20} color="#FFF" />
         </TouchableOpacity>
@@ -68,37 +79,22 @@ const CatalogueScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-left" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Icon name="search" size={20} color="#FFF" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by product name"
-          placeholderTextColor="#FFF"
+          placeholder="Search"
           value={search}
           onChangeText={setSearch}
+          placeholderTextColor="#FFF"
         />
       </View>
-
-      {/* Catalogue List */}
       <FlatList
-        data={products.filter((item) =>
-          item.name.toLowerCase().includes(search.toLowerCase())
-        )}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCatalogueItem}
-        showsVerticalScrollIndicator={false}
+        data={filteredProducts}
+        keyExtractor={(item) => item.IDProduk.toString()}
+        renderItem={renderProductItem}
         contentContainerStyle={styles.listContainer}
       />
-
-      {/* Add Button */}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate("CatalogueAdd")}
@@ -110,83 +106,39 @@ const CatalogueScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#C5FFF8",
-    padding: 16,
-    paddingTop: 45,
-  },
-  header: {
-    marginBottom: 10,
-  },
-  backButton: {
-    padding: 8,
-    backgroundColor: "#FFF",
-    borderRadius: 5,
-  },
+  container: { flex: 1, backgroundColor: "#C5FFF8", padding: 16 },
   searchContainer: {
     flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#7B66FF",
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  searchIcon: {
-    marginRight: 5,
-  },
-  searchInput: {
-    flex: 1,
-    color: "#FFF",
-  },
-  listContainer: {
-    paddingVertical: 10,
-  },
-  itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#A29CF4",
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
-  },
-  itemImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-  itemDetails: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFF",
-  },
-  itemPrice: {
-    fontSize: 14,
-    color: "#FFF",
-  },
-  itemStock: {
-    fontSize: 12,
-    color: "#FFF",
-  },
-  actionButtons: {
-    flexDirection: "row",
     alignItems: "center",
   },
+  searchInput: { flex: 1, color: "#FFF" },
+  searchIcon: { marginRight: 10 },
+  listContainer: { paddingVertical: 10 },
+  itemContainer: {
+    flexDirection: "row",
+    backgroundColor: "#A29CF4",
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems: "center",
+    padding: 10,
+  },
+  itemImage: { width: 60, height: 60, borderRadius: 10, marginRight: 10 },
+  itemDetails: { flex: 1 },
+  itemName: { fontSize: 16, fontWeight: "bold", color: "#FFF" },
+  itemPrice: { fontSize: 14, color: "#FFF" },
+  itemStock: { fontSize: 12, color: "#FFF" },
+  actionButtons: { flexDirection: "row" },
   editButton: {
     backgroundColor: "#FFB700",
-    padding: 8,
+    padding: 10,
     borderRadius: 5,
-    marginRight: 5,
+    marginRight: 10,
   },
-  deleteButton: {
-    backgroundColor: "#FF5B5B",
-    padding: 8,
-    borderRadius: 5,
-  },
+  deleteButton: { backgroundColor: "#FF5B5B", padding: 10, borderRadius: 5 },
   addButton: {
     position: "absolute",
     bottom: 20,

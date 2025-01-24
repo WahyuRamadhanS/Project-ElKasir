@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, TextInput, TouchableOpacity, Alert } from "react-native";
+import { Text, View, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import api from "../utils/api";
 import styles from "../assets/style";
 

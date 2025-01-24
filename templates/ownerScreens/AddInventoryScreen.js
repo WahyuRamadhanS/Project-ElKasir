@@ -15,22 +15,30 @@ export default function AddInventoryScreen({ navigation }) {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
-    if (!name || !password) {
+    if (!name.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
 
     try {
-      await api.post("/pegawai_inventaris", {
-        Nama: name,
-        KataSandi: password,
+      const response = await api.post("/pegawai_inventaris", {
+        Nama: name.trim(),
+        KataSandi: password.trim(),
       });
 
-      Alert.alert("Success", "Inventory registered successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("Home") },
-      ]);
+      if (response.status === 201) {
+        Alert.alert("Success", "Inventory employee registered successfully!", [
+          { text: "OK", onPress: () => navigation.navigate("Home") },
+        ]);
+      } else {
+        Alert.alert("Error", "Failed to register inventory employee.");
+      }
     } catch (error) {
-      Alert.alert("Error", error.response?.data?.message || "Failed to register.");
+      if (error.response?.data?.message) {
+        Alert.alert("Error", error.response.data.message);
+      } else {
+        Alert.alert("Error", "Failed to register inventory employee. Please try again.");
+      }
     }
   };
 
@@ -40,18 +48,18 @@ export default function AddInventoryScreen({ navigation }) {
         <Icon name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
       <View style={styles.formCard}>
-        <Text style={styles.title}>Register Inventory</Text>
+        <Text style={styles.title}>Register Inventory Employee</Text>
         <TextInput
           style={styles.input}
           placeholder="Name"
           value={name}
-          onChangeText={(text) => setName(text)}
+          onChangeText={setName}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
           value={password}
-          onChangeText={(text) => setPassword(text)}
+          onChangeText={setPassword}
           secureTextEntry
         />
         <TouchableOpacity style={styles.button} onPress={handleRegister}>

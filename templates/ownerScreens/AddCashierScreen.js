@@ -15,22 +15,30 @@ export default function AddCashierScreen({ navigation }) {
   const [password, setPassword] = useState("");
 
   const handleRegister = async () => {
-    if (!name || !password) {
+    if (!name.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
 
     try {
-      await api.post("/pegawai_kasir", {
-        Nama: name,
-        KataSandi: password,
+      const response = await api.post("/pegawai_kasir", {
+        Nama: name.trim(),
+        KataSandi: password.trim(),
       });
 
-      Alert.alert("Success", "Cashier registered successfully!", [
-        { text: "OK", onPress: () => navigation.navigate("Home") },
-      ]);
+      if (response.status === 201) {
+        Alert.alert("Success", "Cashier registered successfully!", [
+          { text: "OK", onPress: () => navigation.navigate("Home") },
+        ]);
+      } else {
+        Alert.alert("Error", "Failed to register cashier.");
+      }
     } catch (error) {
-      Alert.alert("Error", error.response?.data?.message || "Failed to register.");
+      if (error.response?.data?.message) {
+        Alert.alert("Error", error.response.data.message);
+      } else {
+        Alert.alert("Error", "Failed to register cashier. Please try again.");
+      }
     }
   };
 
@@ -45,13 +53,13 @@ export default function AddCashierScreen({ navigation }) {
           style={styles.input}
           placeholder="Name"
           value={name}
-          onChangeText={(text) => setName(text)}
+          onChangeText={setName}
         />
         <TextInput
           style={styles.input}
           placeholder="Password"
           value={password}
-          onChangeText={(text) => setPassword(text)}
+          onChangeText={setPassword}
           secureTextEntry
         />
         <TouchableOpacity style={styles.button} onPress={handleRegister}>

@@ -9,12 +9,15 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function RoleSelectionScreen({ navigation }) {
   const handleRoleSelect = (role) => {
-    navigation.navigate("AddEmployee", { role });
+    if (role === "Cashier") {
+      navigation.navigate("AddCashier");
+    } else if (role === "Inventory") {
+      navigation.navigate("AddInventory");
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* Tombol Kembali */}
       <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
@@ -42,6 +45,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#C5FFF8",
     padding: 20,
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 3,
   },
   title: {
     fontSize: 24,

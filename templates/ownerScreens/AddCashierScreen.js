@@ -9,11 +9,10 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import api from "../utils/api";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import api from "../utils/api";
 
-export default function RegisterEmployeeScreen({ route, navigation }) {
-  const { role } = route.params; // Role diterima dari navigasi
+export default function AddCashierScreen({ navigation }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -33,56 +32,36 @@ export default function RegisterEmployeeScreen({ route, navigation }) {
     }
   };
 
-  const handleRegisterEmployee = async () => {
+  const handleRegister = async () => {
     if (!name || !phone || !email || !password) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
 
     try {
-      const endpoint =
-        role === "Cashier"
-          ? "/pegawai_kasir"
-          : role === "Inventory"
-          ? "/pegawai_inventaris"
-          : null;
-
-      if (!endpoint) {
-        Alert.alert("Error", "Invalid role selected.");
-        return;
-      }
-
-      await api.post(endpoint, {
+      await api.post("/pegawai_kasir", {
         Nama: name,
+        NomorHP: phone,
+        Email: email,
         KataSandi: password,
-        FotoProfil: profileImage, // Foto profil dikirimkan sebagai URI, backend harus menangani upload
+        FotoProfil: profileImage, // Dikirimkan sebagai URI, backend perlu menangani
       });
 
-      Alert.alert("Success", `${name} registered as ${role} successfully!`, [
-        { text: "OK", onPress: () => navigation.navigate("Home") },
+      Alert.alert("Success", "Cashier registered successfully!", [
+        { text: "OK", onPress: () => navigation.navigate("RoleSelection") },
       ]);
     } catch (error) {
-      Alert.alert(
-        "Error",
-        error.response?.data?.message || "Failed to register employee."
-      );
+      Alert.alert("Error", error.response?.data?.message || "Failed to register.");
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Tombol Kembali */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate("RoleSelection")}
-        style={styles.backButton}
-      >
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Icon name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
-
       <View style={styles.formCard}>
-        <Text style={styles.title}>Register {role}</Text>
-
-        {/* Foto Profil */}
+        <Text style={styles.title}>Register Cashier</Text>
         <TouchableOpacity style={styles.profileImageContainer} onPress={pickImage}>
           {profileImage ? (
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
@@ -90,16 +69,26 @@ export default function RegisterEmployeeScreen({ route, navigation }) {
             <Icon name="person" size={80} color="#7B66FF" />
           )}
         </TouchableOpacity>
-
-        {/* Input Nama */}
         <TextInput
           style={styles.input}
           placeholder="Name"
           value={name}
           onChangeText={(text) => setName(text)}
         />
-
-        {/* Input Password */}
+        <TextInput
+          style={styles.input}
+          placeholder="Phone"
+          value={phone}
+          onChangeText={(text) => setPhone(text)}
+          keyboardType="phone-pad"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          keyboardType="email-address"
+        />
         <TextInput
           style={styles.input}
           placeholder="Password"
@@ -107,9 +96,7 @@ export default function RegisterEmployeeScreen({ route, navigation }) {
           onChangeText={(text) => setPassword(text)}
           secureTextEntry
         />
-
-        {/* Tombol Daftar */}
-        <TouchableOpacity style={styles.button} onPress={handleRegisterEmployee}>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
@@ -182,4 +169,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-});
+});  

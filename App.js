@@ -15,7 +15,8 @@ import SettingScreen from "./templates/ownerScreens/SettingScreen";
 import EditProfileScreen from "./templates/ownerScreens/EditProfileScreen";
 import EmployeeAttendanceScreen from "./templates/ownerScreens/EmployeeAttendanceScreen";
 import EmployeeDetailScreen from "./templates/ownerScreens/EmployeeDetailScreen";
-import AddEmployeeScreen from "./templates/ownerScreens/AddEmployeeScreen";
+import AddCashierScreen from "./templates/ownerScreens/AddCashierScreen";
+import AddInventoryScreen from "./templates/ownerScreens/AddInventoryScreen";
 import RoleSelectionScreen from "./templates/ownerScreens/roleSelect";
 import FinancialReportScreen from "./templates/ownerScreens/FinancialReportScreen";
 import OrderScreen from "./templates/ownerScreens/OrderScreen";
@@ -94,8 +95,9 @@ export default function App() {
             component={EmployeeAttendanceScreen}
           />
           <Stack.Screen name="EmployeeDetail" component={EmployeeDetailScreen} />
-          <Stack.Screen name="AddEmployee" component={AddEmployeeScreen} />
-          <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
+          <Stack.Screen name="AddCashier" component={AddCashierScreen} />
+          <Stack.Screen name="AddInventory" component={AddInventoryScreen} />
+          <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />          
           <Stack.Screen
             name="FinancialReport"
             component={FinancialReportScreen}

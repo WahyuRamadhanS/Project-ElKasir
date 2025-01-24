@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
-import api from "../../utils/api"; // Pastikan util API digunakan
+import api from "../utils/api";
 
 const OrderScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);

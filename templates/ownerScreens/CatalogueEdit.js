@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import api from "../../utils/api";
+import api from "../utils/api";
 
 const CatalogueEdit = ({ navigation, route }) => {
   const { product } = route.params;

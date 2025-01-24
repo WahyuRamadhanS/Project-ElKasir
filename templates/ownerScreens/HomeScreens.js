@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Make sure this is installed
-import api from "../utils/api"; // Backend API integration
+import api from "../utils/api";
 
 const HomeScreen = ({ navigation, route }) => {
   const [profileImage, setProfileImage] = useState(

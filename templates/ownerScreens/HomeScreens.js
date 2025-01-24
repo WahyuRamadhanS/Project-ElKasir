@@ -7,19 +7,18 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Make sure this is installed
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import api from "../utils/api";
 
 const HomeScreen = ({ navigation, route }) => {
   const [profileImage, setProfileImage] = useState(
     require("../assets/profile.png")
-  ); // Default profile image
-  const [storeName, setStoreName] = useState("Nama Toko"); // Default store name
-  const [totalProductsSold, setTotalProductsSold] = useState(150);
-  const [productPrice, setProductPrice] = useState(103400);
+  );
+  const [storeName, setStoreName] = useState("Nama Toko");
+  const [totalProductsSold, setTotalProductsSold] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
-  const [highestSales, setHighestSales] = useState(0); // Highest sales in a day
-  const [lowestSales, setLowestSales] = useState(0); // Lowest sales in a day
+  const [highestSales, setHighestSales] = useState(0);
+  const [lowestSales, setLowestSales] = useState(0);
 
   // Fetch store name from AsyncStorage
   useEffect(() => {
@@ -32,23 +31,25 @@ const HomeScreen = ({ navigation, route }) => {
     fetchStoreName();
   }, []);
 
-  // Fetch highest and lowest daily sales from backend
+  // Fetch sales stats and revenue
   useEffect(() => {
-    const fetchSalesStats = async () => {
+    const fetchStats = async () => {
       try {
-        const response = await api.get("/sales/stats"); // Endpoint for fetching stats
-        const { highest, lowest, totalProducts } = response.data;
+        const response = await api.get("/sales/stats");
+        const { highest, lowest, totalProducts, monthlyRevenue } =
+          response.data;
         setHighestSales(highest || 0);
         setLowestSales(lowest || 0);
         setTotalProductsSold(totalProducts || 0);
+        setMonthlyRevenue(monthlyRevenue || 0);
       } catch (error) {
-        console.error("Failed to fetch sales stats:", error);
+        console.error("Failed to fetch stats:", error);
       }
     };
-    fetchSalesStats();
+    fetchStats();
   }, []);
 
-  // Handle updates from EditProfileScreen
+  // Update store name and profile image
   useEffect(() => {
     if (route.params?.updatedStoreName) {
       setStoreName(route.params.updatedStoreName);
@@ -57,12 +58,6 @@ const HomeScreen = ({ navigation, route }) => {
       setProfileImage({ uri: route.params.updatedProfileImage });
     }
   }, [route.params]);
-
-  // Calculate monthly revenue whenever products sold or price changes
-  useEffect(() => {
-    const revenue = totalProductsSold * productPrice;
-    setMonthlyRevenue(revenue);
-  }, [totalProductsSold, productPrice]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -126,9 +121,6 @@ const HomeScreen = ({ navigation, route }) => {
         <Text style={styles.revenueText}>
           Rp. {monthlyRevenue.toLocaleString("id-ID")}
         </Text>
-        <TouchableOpacity style={styles.editButton}>
-          <Text style={styles.editIcon}>✎</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Menu Grid */}
